@@ -12,6 +12,7 @@
     - https://morsetranslator.net/
     - https://onlinetexttools.com/convert-text-to-morse
     - https://dnschecker.org/morse-code-translator.php
+    * Morse to Text (reverse) Functionality
 
 * Try these 1-no encoding & raw bytes; 2-Web Audio API approaches:
 
