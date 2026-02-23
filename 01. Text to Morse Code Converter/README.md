@@ -4,10 +4,10 @@
         - speed
         - pitch (frequency)
         - volume
-* > [>] Implement text to morse code feature as for web UI using NiceGUI.
-* [ ] Add playing/listening morse code as audio feature in web UI.
-* [ ] Functionalities & Samples:
-    - https://morsecode.world/international/translator.html
+* [x] Implement text to morse code feature as for web UI using NiceGUI.
+* [x] Add playing/listening morse code as audio feature in web UI.
+* [>>] Functionalities & Samples:
+    - > https://morsecode.world/international/translator.html
     - https://blendertimer.com/web-tools/morse-code-translator
     - https://morsetranslator.net/
     - https://onlinetexttools.com/convert-text-to-morse

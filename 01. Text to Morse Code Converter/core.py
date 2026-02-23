@@ -155,7 +155,6 @@ def compose_morse_code_audio(
 
     # Encdoe: Turn the binary WAV into a text string for the browser
     b64_audio = base64.b64encode(buffer.getvalue()).decode()
-    print(b64_audio)
     return f"data:audio/wav;base64,{b64_audio}"
 
 
@@ -163,12 +162,7 @@ def main():
     message_text = input("Input Your Message: ")
     morse_code = text_to_morse(message_text)
     print("Your Morse Code:", morse_code)
-    # input("Press Enter to Listen Morse Audio...")
     print("Playing Morse Code as Audio...")
-    # TODO: user input parameters:
-        # speed = [1 : 100]
-        # vol = [1 : 100]
-        # freq = [100 : 1_000]
     morse_sound = compose_morse_code_audio(
         morse_code, speed=80, vol=50, freq=432, wave_type="sine",
     )
