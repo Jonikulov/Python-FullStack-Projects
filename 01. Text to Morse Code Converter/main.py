@@ -23,13 +23,26 @@ def handle_input(e: ValueChangeEventArguments) -> None:
     output_area.value = text_to_morse(input_text)
 
 
+def handle_finished():
+    play_pause_button.set_text("Play")
+    play_pause_button.set_icon("play_circle")
+
+
+def set_volume(value: int):
+    volume_label.set_text(f"Volume: {value}")
+    if morse_audio is None:
+        return
+    # NiceGUI prefixes element IDs with a "c" in the actual HTML (e.g., c5).
+    ui.run_javascript(f'document.getElementById("c{morse_audio.id}").volume={value/100}')
+
+
 def control_morse_audio(e: ClickEventArguments) -> None:
     global morse_audio, output_area, speed_slider, pitch_slider, volume_slider
 
     morse_sound = compose_morse_code_audio(
         output_area.value,  # morse code
         speed=speed_slider.value,
-        vol=volume_slider.value,
+        vol=100,
         freq=pitch_slider.value,
         wave_type="sine",  # TODO: option in UI
     )
@@ -40,6 +53,8 @@ def control_morse_audio(e: ClickEventArguments) -> None:
         e.sender.set_icon("pause")
         if morse_audio is None:
             morse_audio = ui.audio(morse_sound, controls=False)
+            morse_audio.on("ended", handle_finished)
+        set_volume(volume_slider.value)
         morse_audio.play()
         stop_button.enable()
         return
@@ -66,13 +81,13 @@ def control_morse_audio(e: ClickEventArguments) -> None:
 ui.label("Text2Morse").classes("self-center text-4xl font-medium")
 
 with ui.row().classes("mx-auto"):
-    ui.textarea(
-        label="Text (input)", on_change=handle_input
-    ).props("rows=13").classes("w-[35vw] text-lg")
-    ui.separator().props("vertical").classes("h-[39vh]")
-    output_area = ui.textarea(
-        label="Morse (output)"
-    ).props("readonly rows=13").classes("w-[35vw] text-3xl")
+    ui.textarea(label="Text (input)", on_change=handle_input) \
+        .props("rows=13") \
+        .classes("w-[35vw] text-lg p-2 bg-[#fcf7f0] dark:bg-gray-600")
+    ui.separator().props("vertical")
+    output_area = ui.textarea(label="Morse (output)") \
+        .props("readonly rows=13") \
+        .classes("w-[35vw] text-3xl bg-gray-100 p-2 dark:bg-[#3b3937]")
 
 with ui.card().classes("mx-auto w-[50vw] shadow-0"):
     with ui.list().props("dense").classes("w-full"):
@@ -106,10 +121,10 @@ with ui.card().classes("mx-auto w-[50vw] shadow-0"):
                 volume_label = ui.label(f"Volume: {data["volume"]}").classes("font-bold")
             with ui.item_section():
                 volume_slider = ui.slider(
-                    min=1,
+                    min=0,
                     max=100,
                     value=data["volume"],
-                    on_change=lambda e: volume_label.set_text(f"Volume: {e.value}")
+                    on_change=lambda e: set_volume(e.value)
                 ).props("label").classes("w-full")
 
 with ui.row().classes("mx-auto"):
@@ -124,6 +139,7 @@ with ui.row().classes("mx-auto"):
 
 if __name__ in {"__main__", "__mp_main__"}:
     # TODO: setup proper parameters
+    ui.dark_mode(value=None)  # auto mode
     ui.run(
         host="0.0.0.0",
         port=8081,
