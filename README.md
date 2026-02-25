@@ -3,14 +3,14 @@
 ---
 
 * **NiceGUI:**
-    * > Text to Morse Code Converter
-    - Custom Web Scraper
-    * Typing Speed Test
-    * Disappearing Text Writing App
-    * Tic Tac Toe
-    - Automate the Google Dinosaur Game
-    * Breakout / Brick Breaker / Arkanoid Game
-    * Space Invaders Game
+    * [x] Text to Morse Code Converter
+    * [x] Custom Web Scraper -> *ScrapeX-cli*
+    * > [ ] Disappearing Text Writing App
+    * [ ] Typing Speed Test
+    * [ ] Tic Tac Toe
+    - [ ] Automate the Google Dinosaur Game
+    * [ ] Breakout / Brick Breaker / Arkanoid Game
+    * [ ] Space Invaders Game
 
 * **PyDHAT** (--> more in *Practical Projects Personal Notes*)
     - **Py**thon (FastAPI, Django, ...)
