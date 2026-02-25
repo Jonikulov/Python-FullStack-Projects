@@ -1,8 +1,8 @@
-* [>] TODOs
-* [ ] Error in input. Cannot translate the highlighted characters: \<CleanUp\>
+### TODOs:
+* [>] Error in input. Cannot translate the highlighted characters: \<CleanUp\>
 * [ ] Buttons:
     - Copy Input
-    - Clear (input)
+    - Clear Input (also clears output)
     - Copy Output
     - Download Audio (.wav)
 * [ ] Each character highlighting while reading (in audio) feature.

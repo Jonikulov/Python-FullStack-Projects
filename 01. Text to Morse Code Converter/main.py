@@ -8,11 +8,98 @@ from core import text_to_morse, compose_morse_code_audio
 
 # =============== Configuration & Parameters ===============
 
-grid_style = (
-    "border w-[60%] mx-auto p-[0.15rem] text-center text-lg text-bold "
-    "gap-[0.15rem] shadow-xl/30 rounded dark:text-[#00ff41]"
-)
-data = {"speed": 75, "frequency": 432, "volume": 50}
+LOGGING_CONFIG_1 = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "detailed": {
+            "format": "[{asctime}.{msecs:03.0f} | {levelname} | {name} | {filename}:{lineno}]: {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "detailed",
+            "level": "WARNING",  # <--- Console only gets WARNING and ERROR
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "text2morse.log",
+            "mode": "a",
+            "maxBytes": 10**8,  # 100MB
+            "backupCount": 5,   # 5 backups
+            "encoding": "utf-8",
+            "formatter": "detailed",
+            "level": "INFO",    # <--- File gets INFO and everything above
+        },
+    },
+    "loggers": {
+        "": {  # Root logger (catches everything else)
+            "handlers": ["console", "file"],
+            "level": "INFO", 
+        },
+        "uvicorn": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "uvicorn.access": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "py.warnings": {  # Handles the captureWarnings(True) output
+            "handlers": ["console", "file"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "watchfiles.main": {  # Mutes the NiceGUI auto-reload spam
+            "level": "WARNING",
+            "propagate": False,
+        }
+    },
+}
+
+LOGGING_CONFIG_2 = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "detailed": {
+            "format": "[{asctime}.{msecs:03.0f} | {levelname} | {name} | {filename}:{lineno}]: {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "detailed",
+            "level": "WARNING",
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "text2morse.log",
+            "mode": "a",
+            "maxBytes": 10**8,  # 100MB
+            "backupCount": 5,
+            "encoding": "utf-8",
+            "formatter": "detailed",
+            "level": "INFO",
+        },
+    },
+    "loggers": {
+        "": {"handlers": ["console", "file"], "level": "INFO"},
+        "watchfiles.main": {"level": "WARNING"},
+        "uvicorn.access": {"propagate": True},
+        "uvicorn.error": {"propagate": True},
+    },
+}
+
+SOUND_TYPES = ["sine", "square", "sawtooth"]
+ui.dark_mode(value=None)  # auto mode
+default_params = {"speed": 75, "frequency": 432, "volume": 50}
 morse_audio = None
 
 # =============== Handlers & Controllers ===============
@@ -44,7 +131,7 @@ def control_morse_audio(e: ClickEventArguments) -> None:
         speed=speed_slider.value,
         vol=100,
         freq=pitch_slider.value,
-        wave_type="sine",  # TODO: option in UI
+        wave_type=sound_type.value,
     )
     action = e.sender.text  # Play / Stop / Pause
 
@@ -82,48 +169,55 @@ ui.label("Text2Morse").classes("self-center text-4xl font-medium")
 
 with ui.row().classes("mx-auto"):
     ui.textarea(label="Text (input)", on_change=handle_input) \
-        .props("rows=13") \
-        .classes("w-[35vw] text-lg p-2 bg-[#fcf7f0] dark:bg-gray-600")
+        .props("rows=17") \
+        .classes("w-[40vw]  text-lg p-2 bg-[#fcf7f0] dark:bg-gray-600 rounded")
     ui.separator().props("vertical")
     output_area = ui.textarea(label="Morse (output)") \
-        .props("readonly rows=13") \
-        .classes("w-[35vw] text-3xl bg-gray-100 p-2 dark:bg-[#3b3937]")
+        .props("readonly rows=17") \
+        .classes("w-[40vw]  text-3xl bg-gray-100 p-2 dark:bg-[#3b3937] rounded")
 
-with ui.card().classes("mx-auto w-[50vw] shadow-0"):
-    with ui.list().props("dense").classes("w-full"):
+with ui.card().classes("grid grid-cols-6 mx-auto w-[70vw] shadow-0"):
+    with ui.column().classes("col-span-1 gap-0"):
+        ui.label("Sound Type:").classes("text-bold")
+        sound_type = ui.select(options=SOUND_TYPES, value="sine") \
+        .classes("w-30")
+
+    with ui.list().props("dense").classes("col-span-5 border-l"):
         # --- Speed Row ---
         with ui.item():
             with ui.item_section().props("avatar"):
-                speed_label = ui.label(f"Speed: {data["speed"]}").classes("text-teal font-bold")
+                speed_label = ui.label(f"Speed: {default_params["speed"]}") \
+                    .classes("text-teal font-bold")
             with ui.item_section():
                 speed_slider = ui.slider(
                     min=1,
                     max=100,
-                    value=data["speed"],
+                    value=default_params["speed"],
                     on_change=lambda e: speed_label.set_text(f"Speed: {e.value}")
                 ).props("label color=teal").classes("w-full")
         # --- Pitch (Frequency) Row ---
         with ui.item():
             with ui.item_section().props("avatar"):
                 frequency_label = ui.label(
-                    f"Pitch: {data["frequency"]}"
+                    f"Pitch: {default_params["frequency"]}"
                 ).classes("text-deep-orange font-bold")
             with ui.item_section():
                 pitch_slider = ui.slider(
                     min=100,
                     max=1000,
-                    value=data["frequency"],
+                    value=default_params["frequency"],
                     on_change=lambda e: frequency_label.set_text(f"Pitch: {e.value}")
                 ).props("label color=deep-orange").classes("w-full")
         # --- Volume Row ---
         with ui.item():
             with ui.item_section().props("avatar"):
-                volume_label = ui.label(f"Volume: {data["volume"]}").classes("font-bold")
+                volume_label = ui.label(f"Volume: {default_params["volume"]}") \
+                    .classes("font-bold text-primary")
             with ui.item_section():
                 volume_slider = ui.slider(
                     min=0,
                     max=100,
-                    value=data["volume"],
+                    value=default_params["volume"],
                     on_change=lambda e: set_volume(e.value)
                 ).props("label").classes("w-full")
 
@@ -138,21 +232,17 @@ with ui.row().classes("mx-auto"):
 
 
 if __name__ in {"__main__", "__mp_main__"}:
-    # TODO: setup proper parameters
-    ui.dark_mode(value=None)  # auto mode
     ui.run(
         host="0.0.0.0",
         port=8081,
         reload=True,  # prod -> False
         show=False,
         show_welcome_message=False,
-        dark=False,
-
         storage_secret=os.getenv("STORAGE_SECRET_KEY", uuid.uuid4()),
         # favicon="./static/images/logo-nobg.ico",
         title="Text to Morse Code Converter",
-        # TODO: make all logs & outputs to logfiles.
         uvicorn_logging_level="debug",  # prod -> info
+        log_config=LOGGING_CONFIG_2,  # uvicorn logging configuration
 
         fastapi_docs=True,  # prod -> False
         workers=1,  # NiceGUI does not support multiple workers
