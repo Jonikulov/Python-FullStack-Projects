@@ -5,6 +5,7 @@ requires-python = ">=3.13.11"
 [manifest]
 members = [
     "01-text-to-morse-code-converter",
+    "02-disappearing-text-writing-app",
     "python-fullstack-projects",
 ]
 
@@ -22,6 +23,17 @@ requires-dist = [
     { name = "nicegui", specifier = ">=3.7.1" },
     { name = "numpy", specifier = ">=2.4.2" },
 ]
+
+[[package]]
+name = "02-disappearing-text-writing-app"
+version = "0.1.0"
+source = { virtual = "02. Disappearing Text Writing App" }
+dependencies = [
+    { name = "nicegui" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "nicegui", specifier = ">=3.7.1" }]
 
 [[package]]
 name = "aiofiles"

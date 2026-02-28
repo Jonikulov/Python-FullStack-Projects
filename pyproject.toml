@@ -9,4 +9,5 @@ dependencies = []
 [tool.uv.workspace]
 members = [
     "01. Text to Morse Code Converter",
+    "02. Disappearing Text Writing App",
 ]
