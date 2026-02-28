@@ -236,7 +236,7 @@ if __name__ in {"__main__", "__mp_main__"}:
         host="0.0.0.0",
         port=8081,
         reload=True,  # prod -> False
-        show=False,
+        show=True,  # prod -> False
         show_welcome_message=False,
         storage_secret=os.getenv("STORAGE_SECRET_KEY", uuid.uuid4()),
         # favicon="./static/images/logo-nobg.ico",

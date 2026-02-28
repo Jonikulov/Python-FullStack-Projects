@@ -1,3 +1,5 @@
+# Text to Morse Code Converter
+
 ### TODOs:
 * [>] Error in input. Cannot translate the highlighted characters: \<CleanUp\>
 * [ ] Buttons:
